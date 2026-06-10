@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Landing Page with Background Image</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+
+    .background {
+      background-image: url("{{ url_for('static', filename='background.jpg') }}"); /* Your image */
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .button-container {
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.85);
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .launch-button {
+      padding: 14px 28px;
+      font-size: 18px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .launch-button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<div class="background">
+  <div class="button-container">
+    <form action="{{ url_for('form') }}">
+      <button class="launch-button" type="submit">Site Suitability Analysis</button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

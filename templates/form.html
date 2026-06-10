@@ -1,0 +1,156 @@
+<!-- form.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AHP Weighted Overlay Analysis</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .main-container {
+      display: flex;
+      height: calc(100vh - 70px);
+      overflow: hidden;
+    }
+
+    .left-panel {
+      flex: 1.2;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 13px;
+    }
+
+    .right-panel {
+      flex: 2;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    table td, table th {
+      border: 1px solid #ddd;
+      padding: 4px;
+      text-align: center;
+    }
+
+    .yellow {
+      background-color: #ffffcc;
+    }
+
+    .auto {
+      background-color: #e6f7ff;
+    }
+
+    td input[type="text"] {
+      width: 40px;
+      font-size: 12px;
+    }
+
+    button {
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header style="background:#333; color:#fff; padding:10px; text-align:center;">
+    <h2>AHP Weighted Overlay Analysis</h2>
+  </header>
+
+  <div class="main-container">
+    <div class="left-panel">
+      <h3>Pairwise Comparison Input</h3>
+      <form method="POST" action="/submit">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              {% for col in criteria %}
+                <th>{{ col }}</th>
+              {% endfor %}
+              <th class="yellow">Cp</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in criteria %}
+              {% set i = loop.index0 %}
+              <tr>
+                <th>{{ row }}</th>
+                {% for col in criteria %}
+                  {% set j = loop.index0 %}
+                  {% if i == j %}
+                    <td class="yellow">1.00</td>
+                  {% elif i < j %}
+                    <td><input type="text" name="{{ row }}_{{ col }}" value="{{ matrix[i][j] }}"></td>
+                  {% else %}
+                    <td>{{ matrix[i][j] }}</td>
+                  {% endif %}
+                {% endfor %}
+                <td class="auto">{{ cp[i] }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <p><strong>CR:</strong> {{ cr }}</p>
+        <button type="submit">Update Excel</button>
+      </form>
+
+      <hr>
+
+      <h3>Upload GeoTIFF Layers</h3>
+      <table>
+        {% for name in ['elevation', 'feeder', 'lulc', 'road', 'slope', 'GHI', 'transmission'] %}
+        <tr>
+          <td>{{ name.capitalize() }}</td>
+          <td><input type="file" id="{{ name }}_file"></td>
+          <td><button type="button" onclick="uploadSingleLayer('{{ name }}')">Upload</button></td>
+        </tr>
+        {% endfor %}
+      </table>
+
+      <hr>
+      <button onclick="calculateAHP()" style="background-color: green; color: white; padding: 8px 14px; margin-top: 10px;">
+        🧮 Calculate AHP
+      </button>
+
+
+      <button id="toggleWMS" style="background-color: green; color: white; padding: 8px 14px; margin-top: 10px;">
+        Transformer Line
+      </button>
+      
+      
+    </div>
+
+    <div class="right-panel">
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
+
+<script>
+  window.onload = function () {
+    const crValue = parseFloat("{{ cr }}");
+    if (!isNaN(crValue)) {
+      if (crValue < 0.1) {
+        alert("✅ CR is in acceptable range. You can proceed.");
+      } else {
+        alert("⚠️ CR value is not in acceptable range. Please revise your input.");
+      }
+    }
+  };
+</script>
